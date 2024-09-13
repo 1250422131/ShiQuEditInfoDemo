@@ -40,8 +40,11 @@ android {
 }
 
 dependencies {
-    implementation("androidx.fragment:fragment-ktx:1.8.1")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.5")
+    // 空祖对话框
+    implementation("com.kongzue.dialogx:DialogX:0.0.49")
+    implementation("com.github.kongzue.DialogXSample:DatePicker:0.0.14")
+    implementation(libs.androidx.fragment.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)

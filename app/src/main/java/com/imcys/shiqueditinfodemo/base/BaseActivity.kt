@@ -9,14 +9,14 @@ abstract class BaseActivity<VB : ViewBinding> : AppCompatActivity() {
 
     private lateinit var _binding: VB
 
-    protected val binding = lazy { _binding }
+    protected val binding by lazy { _binding }
 
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         _binding = getViewBinding()
-        setContentView(binding.value.root)
+        setContentView(binding.root)
     }
 
     protected abstract fun getViewBinding(): VB
