@@ -1,11 +1,14 @@
 package com.imcys.shiqueditinfodemo
 
+import com.imcys.shiqueditinfodemo.R
 import android.graphics.BitmapFactory
 import android.os.Build
 import android.os.Bundle
+import android.view.View
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.core.graphics.drawable.toBitmap
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.Lifecycle
@@ -18,7 +21,10 @@ import com.imcys.shiqueditinfodemo.ui.editInfo.EditInfoViewModel
 import com.imcys.shiqueditinfodemo.ui.editInfo.UserEditInfo
 import com.kongzue.dialogx.datepicker.DatePickerDialog
 import com.kongzue.dialogx.datepicker.interfaces.OnDateSelected
+import com.kongzue.dialogx.dialogs.BottomMenu
 import com.kongzue.dialogx.dialogs.PopTip
+import com.kongzue.dialogx.dialogs.WaitDialog
+import com.kongzue.dialogx.interfaces.OnBindView
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.time.LocalDate
@@ -42,6 +48,14 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
             }
         }
 
+    private val regTakePicturePreviewResult =
+        registerForActivityResult(ActivityResultContracts.TakePicturePreview()) {
+            it.let { bitmap ->
+                binding.faceImage.setImageBitmap(bitmap)
+                userEditInfo.face = bitmap
+            }
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -58,6 +72,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
 
     private fun bindEnv() {
         binding.apply {
+            // 数据绑定
             birthdayEdit.setOnClickListener {
                 // 获取当前年月日
                 val dateStr: String = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -86,17 +101,60 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
                     })
             }
 
-            faceImage.setOnClickListener {
-                // 获取头像
-                regSelectFaceImageResult.launch("image/*")
+            sexRadioGroup.setOnCheckedChangeListener { radioGroup, i ->
+                // 数据绑定
+                when (i) {
+                    R.id.sex_boy_radio -> {
+                        userEditInfo.sex = 0
+                    }
+
+                    R.id.sex_girl_radio -> {
+                        userEditInfo.sex = 1
+                    }
+                }
+
             }
 
+            faceImage.setOnClickListener {
+                // 获取头像
+//                regSelectFaceImageResult.launch("image/*")
+
+                BottomMenu.show(listOf("使用默认头像", "拍照选择", "从相册里选择"))
+                    .setMessage("请选择头像")
+                    .setOnMenuItemClickListener { dialog, text, index ->
+                        when (index) {
+                            0 -> {
+                                // 使用默认头像
+                                binding.faceImage.setImageResource(R.drawable.ic_launcher_background)
+                                userEditInfo.face = binding.faceImage.drawable.toBitmap()
+                            }
+
+                            1 -> {
+                                // 拍照选择
+                                regTakePicturePreviewResult.launch(null)
+                            }
+
+                            2 -> {
+                                // 从相册里选择
+                                regSelectFaceImageResult.launch("image/*")
+                            }
+                        }
+                        false
+                    }
+            }
+
+            // 提交按钮
             submitButton.setOnClickListener {
                 userEditInfo = userEditInfo.copy(
                     nickname = nicknameEdit.text.toString(),
                     birthday = birthdayEdit.text.toString(),
                 )
                 viewModel.updateEditInfo(userEditInfo)
+            }
+
+            // 返回按钮
+            backImage.setOnClickListener {
+                finish()
             }
 
 
@@ -120,18 +178,25 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.editInfoSaveState.collect {
                     when (it) {
-                        is EditInfoSaveState.DEFAULT -> {}
+                        is EditInfoSaveState.DEFAULT -> {
+                        }
 
                         is EditInfoSaveState.ERROR -> {
                             PopTip.show(it.msg)
+                            WaitDialog.dismiss()
                         }
 
                         is EditInfoSaveState.LOADING -> {
-
+                            WaitDialog.show("正在加载").setCustomView(object :
+                                OnBindView<WaitDialog?>(R.layout.dialog_load) {
+                                override fun onBind(dialog: WaitDialog?, v: View) {
+                                }
+                            })
                         }
 
                         is EditInfoSaveState.SUCCESS -> {
-
+                            PopTip.show("成功🏅")
+                            WaitDialog.dismiss()
                         }
                     }
                 }
@@ -139,6 +204,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
 
 
         }
+
 
     }
 

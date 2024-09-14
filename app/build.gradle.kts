@@ -40,6 +40,8 @@ android {
 }
 
 dependencies {
+    // 动画
+    implementation("com.airbnb.android:lottie:3.4.0")
     // 空祖对话框
     implementation("com.kongzue.dialogx:DialogX:0.0.49")
     implementation("com.github.kongzue.DialogXSample:DatePicker:0.0.14")
