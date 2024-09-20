@@ -1,6 +1,5 @@
 package com.imcys.shiqueditinfodemo
 
-import com.imcys.shiqueditinfodemo.R
 import android.graphics.BitmapFactory
 import android.os.Build
 import android.os.Bundle
@@ -11,11 +10,9 @@ import androidx.activity.viewModels
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import com.imcys.shiqueditinfodemo.base.BaseActivity
 import com.imcys.shiqueditinfodemo.databinding.ActivityMainBinding
+import com.imcys.shiqueditinfodemo.extend.collectState
 import com.imcys.shiqueditinfodemo.ui.editInfo.EditInfoSaveState
 import com.imcys.shiqueditinfodemo.ui.editInfo.EditInfoViewModel
 import com.imcys.shiqueditinfodemo.ui.editInfo.UserEditInfo
@@ -25,7 +22,6 @@ import com.kongzue.dialogx.dialogs.BottomMenu
 import com.kongzue.dialogx.dialogs.PopTip
 import com.kongzue.dialogx.dialogs.WaitDialog
 import com.kongzue.dialogx.interfaces.OnBindView
-import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -50,7 +46,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
 
     private val regTakePicturePreviewResult =
         registerForActivityResult(ActivityResultContracts.TakePicturePreview()) {
-            it.let { bitmap ->
+            it?.let { bitmap ->
                 binding.faceImage.setImageBitmap(bitmap)
                 userEditInfo.face = bitmap
             }
@@ -173,37 +169,63 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
 
     private fun initDataBind() {
 
-        lifecycleScope.launch {
-            // 有消息时消费，无消息时挂起，销毁时解除，不会阻塞线程
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.editInfoSaveState.collect {
-                    when (it) {
-                        is EditInfoSaveState.DEFAULT -> {
-                        }
+        viewModel.editInfoSaveState.collectState(this) {
+            when (it) {
+                is EditInfoSaveState.DEFAULT -> {
+                }
 
-                        is EditInfoSaveState.ERROR -> {
-                            PopTip.show(it.msg)
-                            WaitDialog.dismiss()
-                        }
+                is EditInfoSaveState.ERROR -> {
+                    PopTip.show(it.msg)
+                    WaitDialog.dismiss()
+                }
 
-                        is EditInfoSaveState.LOADING -> {
-                            WaitDialog.show("正在加载").setCustomView(object :
-                                OnBindView<WaitDialog?>(R.layout.dialog_load) {
-                                override fun onBind(dialog: WaitDialog?, v: View) {
-                                }
-                            })
-                        }
 
-                        is EditInfoSaveState.SUCCESS -> {
-                            PopTip.show("成功🏅")
-                            WaitDialog.dismiss()
+                is EditInfoSaveState.LOADING -> {
+                    WaitDialog.show("正在加载").setCustomView(object :
+                        OnBindView<WaitDialog?>(R.layout.dialog_load) {
+                        override fun onBind(dialog: WaitDialog?, v: View) {
                         }
-                    }
+                    })
+                }
+
+                is EditInfoSaveState.SUCCESS -> {
+                    PopTip.show("成功🏅")
+                    WaitDialog.dismiss()
                 }
             }
-
-
         }
+
+//        lifecycleScope.launch {
+//            // 有消息时消费，无消息时挂起，销毁时解除，不会阻塞线程
+//            repeatOnLifecycle(Lifecycle.State.STARTED) {
+//                viewModel.editInfoSaveState.collect {
+//                    when (it) {
+//                        is EditInfoSaveState.DEFAULT -> {
+//                        }
+//
+//                        is EditInfoSaveState.ERROR -> {
+//                            PopTip.show(it.msg)
+//                            WaitDialog.dismiss()
+//                        }
+//
+//                        is EditInfoSaveState.LOADING -> {
+//                            WaitDialog.show("正在加载").setCustomView(object :
+//                                OnBindView<WaitDialog?>(R.layout.dialog_load) {
+//                                override fun onBind(dialog: WaitDialog?, v: View) {
+//                                }
+//                            })
+//                        }
+//
+//                        is EditInfoSaveState.SUCCESS -> {
+//                            PopTip.show("成功🏅")
+//                            WaitDialog.dismiss()
+//                        }
+//                    }
+//                }
+//            }
+//
+//
+//        }
 
 
     }
