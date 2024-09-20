@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-
+// 界面状态
 sealed class EditInfoSaveState {
     data class SUCCESS(val msg: String) : EditInfoSaveState()
     data object LOADING : EditInfoSaveState()
@@ -19,6 +19,7 @@ sealed class EditInfoSaveState {
 }
 
 
+// 表单信息
 data class UserEditInfo(
     var nickname: String = "",
     var birthday: String = "",
@@ -46,6 +47,7 @@ class EditInfoViewModel : ViewModel() {
                 _editInfoSaveState.update { EditInfoSaveState.ERROR("请选择头像") }
             } else {
                 _editInfoSaveState.update { EditInfoSaveState.LOADING }
+                // 模拟网络请求 2s后返回成功
                 delay(2000)
                 _editInfoSaveState.update { EditInfoSaveState.SUCCESS("登录成功") }
             }

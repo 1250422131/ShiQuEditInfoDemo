@@ -1,5 +1,6 @@
 package com.imcys.shiqueditinfodemo
 
+import android.content.Intent
 import android.graphics.BitmapFactory
 import android.os.Build
 import android.os.Bundle
@@ -52,6 +53,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
             }
         }
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -61,14 +63,14 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-        initDataBind()
         initView()
         bindEnv()
+        initDataBind()
     }
 
     private fun bindEnv() {
         binding.apply {
-            // 数据绑定
+            // 选择日期
             birthdayEdit.setOnClickListener {
                 // 获取当前年月日
                 val dateStr: String = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -97,6 +99,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
                     })
             }
 
+            // 选择性别
             sexRadioGroup.setOnCheckedChangeListener { radioGroup, i ->
                 // 数据绑定
                 when (i) {
@@ -111,6 +114,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
 
             }
 
+            // 选择头像
             faceImage.setOnClickListener {
                 // 获取头像
 //                regSelectFaceImageResult.launch("image/*")
@@ -172,6 +176,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         viewModel.editInfoSaveState.collectState(this) {
             when (it) {
                 is EditInfoSaveState.DEFAULT -> {
+                    // 什么也不作
                 }
 
                 is EditInfoSaveState.ERROR -> {

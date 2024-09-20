@@ -12,7 +12,6 @@ abstract class BaseActivity<VB : ViewBinding> : AppCompatActivity() {
     protected val binding by lazy { _binding }
 
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         _binding = getViewBinding()

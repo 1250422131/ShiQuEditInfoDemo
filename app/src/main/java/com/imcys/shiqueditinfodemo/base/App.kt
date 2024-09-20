@@ -6,6 +6,6 @@ import com.kongzue.dialogx.DialogX
 class App : Application() {
     override fun onCreate() {
         super.onCreate()
-        DialogX.init(this);
+        DialogX.init(this)
     }
 }
